@@ -5,7 +5,6 @@
 	"minAppVersion": "0.15.0",
 	"description": "Remote control obsidian via msgpack",
 	"author": "Max Bolotin",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"authorUrl": "https://github.com/maxbol/obsidian-remote",
+	"isDesktopOnly": true
 }
