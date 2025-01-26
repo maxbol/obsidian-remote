@@ -87,9 +87,6 @@ export default class ObsidianRemote extends Plugin {
 		};
 
 		const mappedResponse = mapRPCResponse(response);
-
-		console.log("Sending response: ", mappedResponse);
-
 		const encodedResponse = msgpack.encode(mappedResponse);
 
 		socket.write(encodedResponse, (err) => {
