@@ -16,6 +16,14 @@ Currently, there are no plans of submitting this plugin to the official director
 cp -r plugin ~/vaults/my-notes/.obsidian/plugins/obsidian-remote
 ```
 
+Then build the plugin (not sure if this is necessary, but might as well):
+
+```bash
+cd ~/vaults/my-notes/.obsidian/plugins/obsidian-remote
+npm install
+npm run build
+```
+
 ## Installing the CLI tool
 
 The main supported way of building and installing the tool is via nix:

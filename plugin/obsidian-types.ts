@@ -2,7 +2,6 @@ declare module "obsidian" {
 	interface App {
 		commands: Commands;
 	}
-
 }
 
 export interface CommandEntry {
