@@ -27,7 +27,7 @@
       # e.g. nix build .#target.x86_64-linux-gnu
       packages.target = genAttrs allTargetTriples (target:
         env.packageForTarget target ({
-            src = cleanSource ./.;
+            src = cleanSource ./cli;
 
             nativeBuildInputs = with env.pkgs; [];
             buildInputs = with env.pkgsForTarget target; [];
@@ -48,7 +48,7 @@
               mainProgram = "obsidian-remote";
             };
           }
-          // optionalAttrs (!pathExists ./build.zig.zon) {
+          // optionalAttrs (!pathExists ./cli/build.zig.zon) {
             pname = "my-zig-project";
             version = "0.0.0";
           }));

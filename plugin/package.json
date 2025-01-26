@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-msgpack",
+	"name": "obsidian-remote",
 	"version": "1.0.0",
-	"description": "Msgpack integration for Obsidian",
+	"description": "Remote control Obsidian via msgpack",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
