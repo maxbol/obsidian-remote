@@ -1,5 +1,7 @@
 # Obsidian Remote
 
+https://github.com/user-attachments/assets/aae58961-1e45-45fb-8e12-2fc3088b54ac
+
 Enables remote control of Obsidian via msgpack. Includes a reference cli client written in zig that interacts with the IPC server instantiated by the plugin.
 
 ## Disclaimer
