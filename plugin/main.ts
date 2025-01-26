@@ -15,7 +15,7 @@ import {
 } from "./rpc";
 import { CommandEntry } from "./obsidian-types";
 
-interface MyPluginSettings {
+interface Settings {
 	socketPath: string;
 }
 
@@ -38,12 +38,12 @@ export function mapCommand(includeName: boolean, includeIcons: boolean) {
 
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: Settings = {
 	socketPath: "/tmp/obsidian-remote.sock",
 }
 
 export default class ObsidianRemote extends Plugin {
-	settings: MyPluginSettings;
+	settings: Settings;
 
 	private server?: net.Server;
 
