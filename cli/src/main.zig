@@ -16,8 +16,9 @@ const main_parsers = .{
 };
 
 const main_params = clap.parseParamsComptime(
+    \\<command>                     The command to run. One of: list-commands, run-command.
+    \\
     \\-h, --help                    Show this help message.
-    \\<command>
     \\
 );
 
@@ -76,10 +77,12 @@ pub fn listCmds(allocator: std.mem.Allocator, include_names: bool, include_icons
     }
 }
 
-pub fn listCmdsMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator, main_res: MainArgs) !void {
+pub fn listCmdsMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator, _: MainArgs) !void {
     const params = comptime clap.parseParamsComptime(
         \\--include-names           Include human readable command names in output.
         \\--include-icons           Include command palette icons in output.
+        \\
+        \\-h, --help                Show this help message
         \\
     );
 
@@ -96,7 +99,7 @@ pub fn listCmdsMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator
     var include_names: bool = false;
     var include_icons: bool = false;
 
-    if (main_res.args.help != 0) {
+    if (res.args.help != 0) {
         return clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
     }
 
@@ -111,9 +114,11 @@ pub fn listCmdsMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator
     try listCmds(allocator, include_names, include_icons);
 }
 
-pub fn runCmdMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator, main_res: MainArgs) !void {
+pub fn runCmdMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator, _: MainArgs) !void {
     const params = comptime clap.parseParamsComptime(
-        \\ <command-id>
+        \\ <command-id>         The ID of the command to run.
+        \\
+        \\ -h, --help           Show this help message
         \\
     );
 
@@ -127,13 +132,12 @@ pub fn runCmdMain(allocator: std.mem.Allocator, iter: *std.process.ArgIterator, 
     };
     defer res.deinit();
 
-    if (main_res.args.help != 0) {
+    if (res.args.help != 0) {
         return clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
     }
 
     const command_id = res.positionals[0] orelse {
-        _ = try std.io.getStdOut().write("Missing command id\n");
-        return error.MissingCommandId;
+        return clap.help(std.io.getStdErr().writer(), clap.Help, &params, .{});
     };
 
     try runCmd(allocator, command_id);
@@ -164,7 +168,9 @@ pub fn main() !void {
         return clap.help(std.io.getStdErr().writer(), clap.Help, &main_params, .{});
     }
 
-    const command = res.positionals[0] orelse return error.MissingCommand;
+    const command = res.positionals[0] orelse {
+        return clap.help(std.io.getStdErr().writer(), clap.Help, &main_params, .{});
+    };
 
     switch (command) {
         .@"list-commands" => {
