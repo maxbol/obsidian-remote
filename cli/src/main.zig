@@ -1,6 +1,5 @@
 const std = @import("std");
 const clap = @import("clap");
-const msgpack = @import("msgpack");
 const api = @import("api.zig");
 
 const unix_socket_path = "/tmp/obsidian-remote.sock";

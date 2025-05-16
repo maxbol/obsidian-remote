@@ -3,74 +3,65 @@
 
   inputs = {
     zig2nix.url = "github:Cloudef/zig2nix";
-    zls.url = "github:zigtools/zls";
   };
 
-  outputs = {
-    zig2nix,
-    zls,
-    ...
-  }: let
+  outputs = {zig2nix, ...}: let
     flake-utils = zig2nix.inputs.flake-utils;
   in (flake-utils.lib.eachDefaultSystem (system: let
     # Zig flake helper
     # Check the flake.nix in zig2nix project for more options:
     # <https://github.com/Cloudef/zig2nix/blob/master/flake.nix>
-    zig = zig2nix.outputs.packages.${system}.zig.master.bin;
-    env = zig2nix.outputs.zig-env.${system} {inherit zig;};
-    system-triple = env.lib.zigTripleFromString system;
+    env = zig2nix.outputs.zig-env.${system} {};
   in
     with builtins;
-    with env.lib;
-    with env.pkgs.lib; rec {
-      # nix build .#target.{zig-target}
-      # e.g. nix build .#target.x86_64-linux-gnu
-      packages.target = genAttrs allTargetTriples (target:
-        env.packageForTarget target ({
-            src = cleanSource ./cli;
+    with env.pkgs.lib; let
+      zigBuildFlags = ["-Doptimize=ReleaseFast"];
 
-            nativeBuildInputs = with env.pkgs; [];
-            buildInputs = with env.pkgsForTarget target; [];
+      meta = {
+        description = "Reference client for obsidian-remote";
+        license = licenses.mit;
+        maintainers = with lib.maintainers; [];
+        mainProgram = "obsidian-remote";
+      };
+    in rec {
+      # Produces clean binaries meant to be ship'd outside of nix
+      # nix build .#foreign
+      packages.foreign = env.package {
+        inherit zigBuildFlags meta;
+        src = cleanSource ./cli;
 
-            # Smaller binaries and avoids shipping glibc.
-            zigPreferMusl = true;
+        # Packages required for compiling
+        nativeBuildInputs = with env.pkgs; [];
 
-            # This disables LD_LIBRARY_PATH mangling, binary patching etc...
-            # The package won't be usable inside nix.
-            zigDisableWrap = true;
+        # Packages required for linking
+        buildInputs = with env.pkgs; [];
 
-            zigBuildFlags = ["-Doptimize=ReleaseFast"];
-
-            meta = {
-              description = "Reference client for obsidian-remote";
-              license = licenses.mit;
-              maintainers = with lib.maintainers; [];
-              mainProgram = "obsidian-remote";
-            };
-          }
-          // optionalAttrs (!pathExists ./cli/build.zig.zon) {
-            pname = "my-zig-project";
-            version = "0.0.0";
-          }));
+        # Smaller binaries and avoids shipping glibc.
+        zigPreferMusl = true;
+      };
 
       # nix build .
-      packages.default = packages.target.${system-triple}.override {
+      packages.default = packages.foreign.override (attrs: {
+        inherit zigBuildFlags meta;
+
         # Prefer nix friendly settings.
         zigPreferMusl = false;
-        zigDisableWrap = false;
-      };
+
+        # Executables required for runtime
+        # These packages will be added to the PATH
+        zigWrapperBins = with env.pkgs; [];
+
+        # Libraries required for runtime
+        # These packages will be added to the LD_LIBRARY_PATH
+        zigWrapperLibs = attrs.buildInputs or [];
+      });
 
       # For bundling with nix bundle for running outside of nix
       # example: https://github.com/ralismark/nix-appimage
-      apps.bundle.target = genAttrs allTargetTriples (target: let
-        pkg = packages.target.${target};
-      in {
+      apps.bundle = {
         type = "app";
-        program = "${pkg}/bin/default";
-      });
-
-      # default bundle
-      apps.bundle.default = apps.bundle.target.${system-triple};
+        program = "${packages.foreign}/bin/default";
+      };
 
       # nix run .
       apps.default = env.app [] "zig build run -- \"$@\"";
@@ -84,23 +75,19 @@
       # nix run .#docs
       apps.docs = env.app [] "zig build docs -- \"$@\"";
 
-      # nix run .#deps
-      apps.deps = env.showExternalDeps;
-
-      # nix run .#zon2json
-      apps.zon2json = env.app [env.zon2json] "zon2json \"$@\"";
-
-      # nix run .#zon2json-lock
-      apps.zon2json-lock = env.app [env.zon2json-lock] "zon2json-lock \"$@\"";
-
-      # nix run .#zon2nix
-      apps.zon2nix = env.app [env.zon2nix] "zon2nix \"$@\"";
+      # nix run .#zig2nix
+      apps.zig2nix = env.app [] "zig2nix \"$@\"";
 
       # nix develop
       devShells.default = env.mkShell {
-        packages = [
-          zls.packages.${system}.zls
-        ];
+        # Packages required for compiling, linking and running
+        # Libraries added here will be automatically added to the LD_LIBRARY_PATH and PKG_CONFIG_PATH
+        nativeBuildInputs =
+          []
+          ++ packages.default.nativeBuildInputs
+          ++ packages.default.buildInputs
+          ++ packages.default.zigWrapperBins
+          ++ packages.default.zigWrapperLibs;
       };
     }));
 }

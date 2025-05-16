@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal,  Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import * as msgpack from "@msgpack/msgpack";
 import * as net from "net";
 import * as fs from "fs";
