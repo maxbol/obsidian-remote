@@ -9,7 +9,7 @@
         },
         .@"zig-msgpack" = .{
             .url = "https://github.com/zigcc/zig-msgpack/archive/main.tar.gz",
-            .hash = "12209cbdf010d895bfeb90852ea7197287f463b67d05dc3a9874f3a7434b5d9cb5dc",
+            .hash = "zig_msgpack-0.0.8-evvueDjQAACcvfAQ2JW_65CFLqcZcof0Y7Z9Bdw6mHTz",
         },
     },
 
