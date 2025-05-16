@@ -1,5 +1,6 @@
 .{
-    .name = "obsidian-remote",
+    .name = .obsidian_remote,
+    .fingerprint = 0x637c22efeed9f2ea,
     .version = "0.0.1",
     .dependencies = .{
         .clap = .{
@@ -8,7 +9,7 @@
         },
         .@"zig-msgpack" = .{
             .url = "https://github.com/zigcc/zig-msgpack/archive/main.tar.gz",
-            .hash = "1220c76430e6c5a4e64e8351d8a0ed0ead6881fcb656620355e63962c8dca74e0b32",
+            .hash = "12209cbdf010d895bfeb90852ea7197287f463b67d05dc3a9874f3a7434b5d9cb5dc",
         },
     },
 
