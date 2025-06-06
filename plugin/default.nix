@@ -5,8 +5,8 @@ buildNpmPackage {
   src = ./.;
   npmDepsHash = "sha256-JJV1EIT8LpFf4705clZLjHnDxZpA7m15QgQybGIasMc=";
 
-  installPhase = ''
-    mkdir -p $out
-    cp -R $src/* $out
+  postInstall = ''
+    cp -R $out/lib/node_modules/obsidian-remote/* $out
+    rm -R $out/lib
   '';
 }
