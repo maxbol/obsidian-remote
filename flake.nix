@@ -19,7 +19,11 @@
   in
     with builtins;
     with env.pkgs.lib; let
-      zigBuildFlags = ["-Doptimize=ReleaseFast"];
+      zigBuildFlags = [
+        /*
+        "-Doptimize=ReleaseFast"
+        */
+      ];
 
       meta = {
         description = "Reference client for obsidian-remote";
