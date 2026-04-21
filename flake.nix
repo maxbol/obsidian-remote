@@ -26,6 +26,8 @@
       };
     };
 
+    packages.plugin = env.pkgs.callPackage ./plugin env.pkgs;
+
     # nix run .#zon2json
     apps.zig2nix = env.app [env.zig2nix] "zig2nix \"$@\"";
 
