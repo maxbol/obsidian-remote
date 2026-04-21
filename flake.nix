@@ -7,14 +7,12 @@
 
   outputs = {zig2nix, ...}: let
     flake-utils = zig2nix.inputs.flake-utils;
-    nixpkgs = zig2nix.inputs.nixpkgs;
   in (flake-utils.lib.eachDefaultSystem (system: let
     # Zig flake helper
     # Check the flake.nix in zig2nix project for more options:
     # <https://github.com/Cloudef/zig2nix/blob/master/flake.nix>
-    env = zig2nix.outputs.zig-env.${system} {};
-    pkgs = import nixpkgs {
-      inherit system;
+    env = zig2nix.outputs.zig-env.${system} {
+      zig = zig2nix.packages.${system}.zig-0_14_1;
     };
   in
     with builtins;
