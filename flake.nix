@@ -1,5 +1,5 @@
 {
-  description = "Reference client for obsidian-remote";
+  description = "Utility to control Neovim colorscheme from the terminal";
 
   inputs = {
     zig2nix.url = "github:Cloudef/zig2nix";
@@ -14,88 +14,22 @@
     env = zig2nix.outputs.zig-env.${system} {
       zig = zig2nix.packages.${system}.zig-0_14_1;
     };
-  in
-    with builtins;
-    with env.pkgs.lib; let
-      zigBuildFlags = [
-        /*
-        "-Doptimize=ReleaseFast"
-        */
-      ];
+  in {
+    packages.default = env.package {
+      pname = "obsidian-remote";
+      version = "0.0.0";
+      src = ./cli;
 
       meta = {
         description = "Reference client for obsidian-remote";
-        license = licenses.mit;
-        maintainers = with lib.maintainers; [];
         mainProgram = "obsidian-remote";
       };
-    in rec {
-      # Produces clean binaries meant to be ship'd outside of nix
-      # nix build .#foreign
-      packages.foreign = env.package {
-        inherit zigBuildFlags meta;
-        src = cleanSource ./cli;
+    };
 
-        # Packages required for compiling
-        nativeBuildInputs = with env.pkgs; [];
+    # nix run .#zon2json
+    apps.zig2nix = env.app [env.zig2nix] "zig2nix \"$@\"";
 
-        # Packages required for linking
-        buildInputs = with env.pkgs; [];
-
-        # Smaller binaries and avoids shipping glibc.
-        zigPreferMusl = true;
-      };
-
-      # nix build .
-      packages.default = packages.foreign.override (attrs: {
-        inherit zigBuildFlags meta;
-
-        # Prefer nix friendly settings.
-        zigPreferMusl = false;
-
-        # Executables required for runtime
-        # These packages will be added to the PATH
-        zigWrapperBins = with env.pkgs; [];
-
-        # Libraries required for runtime
-        # These packages will be added to the LD_LIBRARY_PATH
-        zigWrapperLibs = attrs.buildInputs or [];
-      });
-
-      packages.plugin = pkgs.callPackage ./plugin pkgs;
-
-      # For bundling with nix bundle for running outside of nix
-      # example: https://github.com/ralismark/nix-appimage
-      apps.bundle = {
-        type = "app";
-        program = "${packages.foreign}/bin/default";
-      };
-
-      # nix run .
-      apps.default = env.app [] "zig build run -- \"$@\"";
-
-      # nix run .#build
-      apps.build = env.app [] "zig build \"$@\"";
-
-      # nix run .#test
-      apps.test = env.app [] "zig build test -- \"$@\"";
-
-      # nix run .#docs
-      apps.docs = env.app [] "zig build docs -- \"$@\"";
-
-      # nix run .#zig2nix
-      apps.zig2nix = env.app [] "zig2nix \"$@\"";
-
-      # nix develop
-      devShells.default = env.mkShell {
-        # Packages required for compiling, linking and running
-        # Libraries added here will be automatically added to the LD_LIBRARY_PATH and PKG_CONFIG_PATH
-        nativeBuildInputs =
-          []
-          ++ packages.default.nativeBuildInputs
-          ++ packages.default.buildInputs
-          ++ packages.default.zigWrapperBins
-          ++ packages.default.zigWrapperLibs;
-      };
-    }));
+    # nix develop
+    devShells.default = env.mkShell {};
+  }));
 }
